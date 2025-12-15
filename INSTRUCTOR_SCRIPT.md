@@ -16,7 +16,7 @@ By the end of this challenge, participants will:
 ### Materials Needed
 - [ ] OpenWeather API keys (one per participant)
 - [ ] AWS accounts with Bedrock permissions
-- [ ] Repository URL: `https://github.com/pipeflo/claude-weather-challenge.git`
+- [ ] Repository URL: `https://github.com/pipeflo/weather-agent-challenge.git`
 
 ### AWS Permissions Required
 ```json
@@ -51,7 +51,7 @@ By the end of this challenge, participants will:
 > 3. Deploy it to Bedrock Agent Core
 > 
 > Your OpenWeather API key is: `[DISTRIBUTE_KEYS]`
-> Repository: `https://github.com/pipeflo/claude-weather-challenge.git`"
+> Repository: `https://github.com/pipeflo/weather-agent-challenge.git`"
 
 ### Challenge Phase (15 minutes)
 

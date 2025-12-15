@@ -9,7 +9,7 @@
 
 ```bash
 # Clone the repository
-git clone https://github.com/pipeflo/claude-weather-challenge.git
+git clone https://github.com/pipeflo/weather-agent-challenge.git
 cd weather-agent-challenge
 
 # Open in your preferred editor

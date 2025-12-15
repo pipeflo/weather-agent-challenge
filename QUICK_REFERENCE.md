@@ -1,14 +1,14 @@
 # Quick Reference Card 📋
 
 ## 🔗 Essential Links
-- **Repository**: `https://github.com/pipeflo/claude-weather-challenge.git`
+- **Repository**: `https://github.com/pipeflo/weather-agent-challenge.git`
 - **Your API Key**: `[PROVIDED_BY_INSTRUCTOR]`
 
 ## ⚡ Quick Commands
 
 ```bash
 # Setup
-git clone https://github.com/pipeflo/claude-weather-challenge.git
+git clone https://github.com/pipeflo/weather-agent-challenge.git
 cd weather-agent-challenge
 
 # Test locally
