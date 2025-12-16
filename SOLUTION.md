@@ -1,11 +1,12 @@
 # Weather Agent Scenario - Complete Solution
 
-This file contains the complete implementation for the inherited weather agent project.
+This file contains the complete implementation for the inherited weather agent project using Amazon Strands tools.
 
 ## Completed agent.py
 
 ```python
 from bedrock_agentcore import BedrockAgentCoreApp
+from strands import Agent, tool
 import requests
 import os
 import json
@@ -13,70 +14,18 @@ import re
 
 app = BedrockAgentCoreApp()
 
-@app.entrypoint
-def invoke(payload):
-    """Main entry point for weather agent"""
-    user_message = payload.get("prompt", "")
+# Weather tool using Strands @tool decorator
+@tool
+def get_weather(city: str) -> str:
+    """Get current weather information for a city.
     
-    if not user_message:
-        return {"result": "Hello! Ask me about the weather in any city."}
-    
-    # Extract city from message
-    city = extract_city(user_message)
-    
-    if not city:
-        return {"result": "Please tell me which city you'd like weather for."}
-    
-    # Get weather data
-    weather = get_weather(city)
-    
-    if weather:
-        response = format_response(weather)
-        return {"result": response}
-    else:
-        return {"result": f"Sorry, couldn't get weather for {city}."}
-
-def extract_city(message):
-    """Parse city from user message"""
-    # Convert to lowercase for easier matching
-    message_lower = message.lower()
-    
-    # Common patterns for weather requests
-    patterns = [
-        r'weather in ([a-zA-Z\s]+)',
-        r'weather for ([a-zA-Z\s]+)',
-        r'weather at ([a-zA-Z\s]+)',
-        r'how.*weather.*in ([a-zA-Z\s]+)',
-        r'what.*weather.*in ([a-zA-Z\s]+)',
-        r'tell me.*weather.*in ([a-zA-Z\s]+)',
-    ]
-    
-    for pattern in patterns:
-        match = re.search(pattern, message_lower)
-        if match:
-            city = match.group(1).strip()
-            # Clean up common words
-            city = re.sub(r'\b(the|today|now|currently)\b', '', city).strip()
-            if city and len(city) > 1:
-                return city.title()
-    
-    # Fallback: look for city after common words
-    words = message.split()
-    for i, word in enumerate(words):
-        if word.lower() in ['in', 'for', 'at'] and i + 1 < len(words):
-            potential_city = words[i + 1]
-            if len(potential_city) > 2:
-                return potential_city.title()
-    
-    return None
-
-def get_weather(city):
-    """Call OpenWeather API"""
+    Args:
+        city: The name of the city to get weather for
+    """
     api_key = os.environ.get('OPENWEATHER_API_KEY')
     
     if not api_key:
-        print("Warning: OPENWEATHER_API_KEY not found")
-        return None
+        return "Error: OPENWEATHER_API_KEY not found in environment variables"
     
     try:
         url = "http://api.openweathermap.org/data/2.5/weather"
@@ -89,35 +38,87 @@ def get_weather(city):
         response = requests.get(url, params=params, timeout=10)
         response.raise_for_status()
         
-        return response.json()
+        data = response.json()
+        
+        # Format weather information
+        city_name = data['name']
+        country = data['sys']['country']
+        temp = data['main']['temp']
+        feels_like = data['main']['feels_like']
+        description = data['weather'][0]['description']
+        humidity = data['main']['humidity']
+        
+        weather_info = f"🌤️ Weather in {city_name}, {country}:\n"
+        weather_info += f"🌡️ Temperature: {temp}°C (feels like {feels_like}°C)\n"
+        weather_info += f"☁️ Conditions: {description.title()}\n"
+        weather_info += f"💧 Humidity: {humidity}%"
+        
+        return weather_info
         
     except requests.exceptions.RequestException as e:
-        print(f"API request error: {e}")
-        return None
-    except Exception as e:
-        print(f"Unexpected error: {e}")
-        return None
-
-def format_response(weather_data):
-    """Format weather into user-friendly message"""
-    try:
-        city = weather_data['name']
-        country = weather_data['sys']['country']
-        temp = weather_data['main']['temp']
-        feels_like = weather_data['main']['feels_like']
-        description = weather_data['weather'][0]['description']
-        humidity = weather_data['main']['humidity']
-        
-        response = f"🌤️ Weather in {city}, {country}:\n"
-        response += f"🌡️ Temperature: {temp}°C (feels like {feels_like}°C)\n"
-        response += f"☁️ Conditions: {description.title()}\n"
-        response += f"💧 Humidity: {humidity}%"
-        
-        return response
-        
+        return f"Error fetching weather data: {e}"
     except KeyError as e:
-        print(f"Error parsing weather data: {e}")
-        return "I received weather data but couldn't parse it properly."
+        return f"Error parsing weather data: {e}"
+    except Exception as e:
+        return f"Unexpected error: {e}"
+
+# Calculator tool using Strands @tool decorator
+@tool
+def calculate(expression: str) -> str:
+    """Perform mathematical calculations safely.
+    
+    Args:
+        expression: Mathematical expression to evaluate (e.g., "2 + 3 * 4")
+    """
+    try:
+        # Basic safety check - only allow numbers, operators, parentheses, and spaces
+        allowed_chars = set('0123456789+-*/()., ')
+        if not all(c in allowed_chars for c in expression):
+            return "Error: Invalid characters in expression. Only numbers and basic operators (+, -, *, /, parentheses) are allowed."
+        
+        # Evaluate the expression safely
+        result = eval(expression)
+        return f"🧮 {expression} = {result}"
+        
+    except ZeroDivisionError:
+        return "Error: Division by zero is not allowed."
+    except SyntaxError:
+        return "Error: Invalid mathematical expression."
+    except Exception as e:
+        return f"Error calculating expression: {e}"
+
+# Create Strands agent with tools
+strands_agent = Agent(
+    system_prompt="""You are a helpful assistant that can provide weather information and perform calculations.
+
+For weather queries:
+- Use the get_weather tool to fetch current weather data for any city
+- Provide clear, formatted weather information
+
+For calculations:
+- Use the calculate tool to perform mathematical operations
+- Support basic arithmetic operations (+, -, *, /, parentheses)
+- Show the calculation and result clearly
+
+Always be helpful and provide clear, accurate information.""",
+    tools=[get_weather, calculate]
+)
+
+@app.entrypoint
+def invoke(payload):
+    """Main entry point for AgentCore"""
+    user_message = payload.get("prompt", "")
+    
+    if not user_message:
+        return {"result": "Hello! I can help you with weather information and calculations. What would you like to know?"}
+    
+    try:
+        # Use Strands agent to process the request
+        response = strands_agent(user_message)
+        return {"result": response}
+        
+    except Exception as e:
+        return {"result": f"Sorry, I encountered an error: {e}"}
 
 if __name__ == "__main__":
     app.run()
@@ -125,26 +126,28 @@ if __name__ == "__main__":
 
 ## Key Implementation Details
 
-### City Extraction
-- Uses regex patterns to match common weather request phrasings
-- Handles variations like "weather in London", "how's Paris weather"
-- Cleans up captured text to remove common words
-- Falls back to simple word-based extraction
-- Returns properly capitalized city names
+### Strands Tools Framework
+- Uses `@tool` decorator to define weather and calculator tools
+- Tools are automatically discovered and made available to the agent
+- Each tool has proper docstring documentation for the LLM to understand usage
 
-### Weather API Integration
-- Gets API key from `OPENWEATHER_API_KEY` environment variable
-- Makes HTTP request to OpenWeather API with proper parameters
-- Includes timeout for reliability
-- Handles various error scenarios (network, API, parsing)
-- Returns parsed JSON response or None on failure
+### Weather Tool
+- Integrates with OpenWeather API using requests
+- Handles API key from environment variable
+- Formats response with emojis and clear structure
+- Includes comprehensive error handling
 
-### Response Formatting
-- Extracts key weather information (temperature, description, humidity)
-- Formats with emojis for visual appeal
-- Includes both actual and "feels like" temperature
-- Handles missing data gracefully
-- Returns user-friendly formatted string
+### Calculator Tool  
+- Safely evaluates mathematical expressions
+- Includes input validation to prevent code injection
+- Handles common math errors (division by zero, syntax errors)
+- Returns formatted results with calculation shown
+
+### Strands Agent Integration
+- Creates a Strands Agent with both tools
+- Uses system prompt to guide tool usage
+- Agent automatically decides when to use each tool based on user input
+- Integrates with AgentCore through the entrypoint function
 
 ## Testing Commands
 
@@ -156,10 +159,20 @@ export OPENWEATHER_API_KEY="your-api-key-here"
 # Start agent
 python agent.py
 
-# Test in another terminal
+# Test weather functionality
 curl -X POST http://localhost:8080/invocations \
   -H "Content-Type: application/json" \
   -d '{"prompt": "What'\''s the weather in London?"}'
+
+# Test calculator functionality  
+curl -X POST http://localhost:8080/invocations \
+  -H "Content-Type: application/json" \
+  -d '{"prompt": "Calculate 15 * 8 + 32"}'
+
+# Test combined functionality
+curl -X POST http://localhost:8080/invocations \
+  -H "Content-Type: application/json" \
+  -d '{"prompt": "What'\''s the weather in Paris and what is 25 + 17?"}'
 ```
 
 ### Production Deployment
@@ -171,39 +184,32 @@ agentcore configure -e agent.py
 agentcore launch
 
 # Test deployed agent
-agentcore invoke '{"prompt": "weather in Tokyo"}'
+agentcore invoke '{"prompt": "weather in Tokyo and calculate 100 / 4"}'
 ```
 
-## Common Issues and Solutions
+## Architecture Benefits
 
-### Issue: City not extracted from message
-**Cause**: User phrasing doesn't match regex patterns
-**Solution**: Add more patterns or improve fallback logic
+This implementation demonstrates:
 
-### Issue: API returns 401 Unauthorized
-**Cause**: Invalid or missing API key
-**Solution**: Verify `OPENWEATHER_API_KEY` environment variable
+1. **Modern Tool Framework**: Uses Amazon Strands for proper tool definition and management
+2. **Multi-Tool Agent**: Single agent can handle both weather and calculations intelligently
+3. **Automatic Tool Selection**: Agent decides which tool to use based on user input
+4. **Production Ready**: Integrates with AgentCore for scalable deployment
+5. **Error Handling**: Comprehensive error handling for both tools
+6. **Safety**: Calculator tool includes input validation for security
 
-### Issue: API returns 404 Not Found
-**Cause**: Invalid city name
-**Solution**: Improve city name validation or suggest alternatives
+## Sample Interactions
 
-### Issue: Deployment fails
-**Cause**: Missing AWS credentials or permissions
-**Solution**: Check `aws sts get-caller-identity` and IAM permissions
+**Weather Query**:
+- Input: "What's the weather in New York?"
+- Output: "🌤️ Weather in New York, US: 🌡️ Temperature: 18°C (feels like 16°C) ☁️ Conditions: Clear Sky 💧 Humidity: 65%"
 
-### Issue: Agent doesn't respond in production
-**Cause**: Environment variable not set in deployment
-**Solution**: Configure API key in AgentCore deployment settings
+**Calculator Query**:
+- Input: "Calculate 25 * 4 + 10"
+- Output: "🧮 25 * 4 + 10 = 110"
 
-## Realistic Development Notes
+**Combined Query**:
+- Input: "What's the weather in London and what's 15 + 27?"
+- Agent automatically uses both tools and provides both answers
 
-This solution represents what a developer would create when inheriting the incomplete codebase:
-
-1. **Followed existing patterns** - Maintained the structure and style
-2. **Implemented pragmatic solutions** - Used simple regex instead of complex NLP
-3. **Added proper error handling** - Handled API failures gracefully
-4. **Included user-friendly formatting** - Made responses engaging with emojis
-5. **Tested incrementally** - Each function can be tested independently
-
-The implementation balances functionality with simplicity, which is typical when completing inherited projects under time constraints.
+This solution represents a modern, production-ready implementation using the Amazon Strands framework for tool-based AI agents.
