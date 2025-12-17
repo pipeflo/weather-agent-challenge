@@ -23,8 +23,8 @@ The previous developer left behind:
 ### Step 1: Assess the Inherited Codebase (10 minutes)
 
 ```bash
-git clone https://github.com/pipeflo/weather-agent-scenario.git
-cd weather-agent-scenario/weather-agent
+git clone https://github.com/pipeflo/weather-agent-challenge.git
+cd weather-agent-challenge/weather-agent
 claude
 ```
 
