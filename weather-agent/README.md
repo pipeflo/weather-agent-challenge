@@ -16,5 +16,10 @@ Should deploy to Amazon Bedrock AgentCore Runtime using the toolkit.
 ## API
 Uses OpenWeather API - key needs to be configured.
 
+## MCP Integration
+This project can be enhanced with Model Context Protocol (MCP) servers:
+- **AgentCore MCP Server**: https://github.com/awslabs/mcp/tree/main/src/amazon-bedrock-agentcore-mcp-server
+- **Strands MCP Server**: https://github.com/strands-agents/mcp-server
+
 ---
 *Last updated by previous developer*
