@@ -20,175 +20,157 @@ The previous developer left behind:
 
 ## Getting Started
 
-### Step 1: Assess the Inherited Codebase (10 minutes)
+### Step 1: Initialize Claude Code Project (5 minutes)
 
 ```bash
-git clone https://github.com/pipeflo/weather-agent-challenge.git
-cd weather-agent-challenge/weather-agent
+git clone https://github.com/pipeflo/weather-agent-scenario.git
+cd weather-agent-scenario/weather-agent
 claude
 ```
 
-**Your First Task**: Use Claude Code to understand what you've inherited.
+**Initialize Project Memory**:
+```
+/init
+```
 
-**Approach**:
-- Ask Claude Code to analyze the existing codebase
-- Understand what's implemented vs what's missing
+This creates a `CLAUDE.md` file that helps Claude Code understand your project context and maintain memory across sessions.
+
+### Step 2: Configure MCP Servers (10 minutes)
+
+**Configure the recommended MCP servers** to enhance Claude Code's capabilities:
+
+**AgentCore MCP Server**:
+- Repository: https://github.com/awslabs/mcp/tree/main/src/amazon-bedrock-agentcore-mcp-server
+- Provides AgentCore deployment and management capabilities
+
+**Strands MCP Server**:
+- Repository: https://github.com/strands-agents/mcp-server  
+- Provides Strands agents framework integration
+
+**Your Task**: Ask Claude Code to help you configure these MCP servers for enhanced development capabilities.
+
+### Step 3: Code Review and Analysis (10 minutes)
+
+**Ask Claude Code to review the existing codebase**:
+
+**Your Approach**:
+- Have Claude Code analyze the current implementation
+- Understand what's already built vs what's missing
 - Identify the architecture and framework being used
-- Plan your completion strategy
+- Get recommendations for completion strategy
 
-**Key Questions to Explore**:
-- What is this Amazon Strands framework?
-- How does AgentCore deployment work?
-- What exactly needs to be implemented?
-- What's the overall architecture and flow?
+**Key Areas to Review**:
+- Current Strands and AgentCore integration
+- Tool definitions and structure
+- Missing functionality in weather and calculator tools
+- Deployment configuration needs
 
-### Step 2: Understand the Requirements (10 minutes)
+### Step 4: Complete the Implementation (15 minutes)
 
-**Your Task**: Use Claude Code to help you reverse-engineer the requirements from the incomplete code.
+**Ask Claude Code to finish the incomplete code**:
 
-**Investigation Areas**:
-- What should the `extract_city()` function do?
-- How should the OpenWeather API integration work?
-- What format should the weather response have?
-- How does AgentCore deployment work?
+**Your Task**: Work with Claude Code to complete all missing functionality:
+- Weather API integration with proper error handling
+- Calculator tool implementation with safety checks
+- Strands agent configuration and tool integration
+- AgentCore entrypoint optimization
 
-**Claude Code Approach**:
-- Ask about Amazon Strands and AgentCore
-- Research the OpenWeather API structure
-- Understand the expected user interaction flow
-- Plan the implementation approach
+**Implementation Focus**:
+- Follow existing code patterns and style
+- Ensure proper tool integration with Strands framework
+- Add comprehensive error handling
+- Maintain production-ready code quality
 
-### Step 3: Implement Missing Functionality (20 minutes)
+### Step 5: Create Local AgentCore Environment (10 minutes)
 
-**Your Task**: Complete the three TODO functions using Claude Code's assistance.
+**Ask Claude Code to set up local testing environment**:
 
-**Implementation Priority**:
-1. **City Extraction** - Parse city names from user messages
-2. **Weather API** - Integrate with OpenWeather API
-3. **Response Formatting** - Create user-friendly responses
+**Your Task**: Have Claude Code help you create a local AgentCore environment for testing:
+- Set up the necessary dependencies
+- Configure environment variables (API keys)
+- Prepare local testing infrastructure
+- Ensure proper AgentCore simulation
 
-**Development Approach**:
-- Use Claude Code to implement each function
-- Test each piece as you build it
-- Handle edge cases and errors
-- Follow the existing code patterns
+### Step 6: Local Testing and Validation (10 minutes)
 
-**Key Implementation Areas**:
-- Natural language processing for city extraction
-- HTTP API calls with proper error handling
-- User-friendly response formatting with weather data
-
-### Step 4: Local Testing and Debugging (10 minutes)
-
-**Your Task**: Test your implementation locally before deployment.
+**Test your completed agent locally**:
 
 **Testing Strategy**:
-- Run the agent locally on port 8080
-- Test with various user inputs
-- Verify API integration works
-- Debug any issues found
+- Test weather functionality with various cities
+- Test calculator functionality with different expressions
+- Test combined requests (weather + calculations)
+- Verify error handling for edge cases
 
 **Testing Commands**:
 ```bash
 # Start agent locally
 python agent.py
 
-# Test with curl (in another terminal)
+# Test weather functionality
 curl -X POST http://localhost:8080/invocations \
   -H "Content-Type: application/json" \
   -d '{"prompt": "What'\''s the weather in London?"}'
-```
 
-### Step 5: Deploy to Production (10 minutes)
-
-**Your Task**: Deploy the completed agent to AgentCore Runtime.
-
-**Deployment Process**:
-- Configure the AgentCore toolkit
-- Set up environment variables (API key)
-- Deploy to AWS infrastructure
-- Test the production deployment
-
-**Deployment Commands**:
-```bash
-# Configure deployment
-agentcore configure -e agent.py
-
-# Deploy to AgentCore Runtime
-agentcore launch
-
-# Test deployed agent
-agentcore invoke '{"prompt": "weather in Paris"}'
+# Test calculator functionality  
+curl -X POST http://localhost:8080/invocations \
+  -H "Content-Type: application/json" \
+  -d '{"prompt": "Calculate 25 * 4 + 10"}'
 ```
 
 ## Success Criteria
 
 Your completed weather agent should:
 
-✅ **Parse user requests** - Extract city names from natural language  
-✅ **Call weather API** - Successfully fetch data from OpenWeather  
-✅ **Format responses** - Provide user-friendly weather information  
-✅ **Handle errors** - Gracefully manage API failures and invalid inputs  
-✅ **Deploy successfully** - Run in AgentCore Runtime on AWS  
-✅ **Work in production** - Respond to real user queries  
+✅ **Initialize properly** - CLAUDE.md file created and MCP servers configured  
+✅ **Code review complete** - Understanding of existing architecture and gaps  
+✅ **Implementation finished** - All tools working with proper Strands integration  
+✅ **Local environment ready** - AgentCore testing environment configured  
+✅ **Testing successful** - Both weather and calculator tools working locally  
+✅ **Production ready** - Code ready for AgentCore Runtime deployment  
 
 ## Development Philosophy
 
-**You're not starting from scratch** - you're completing someone else's work:
+**You're working with Claude Code as your development partner**:
 
-- **Understand first** - Figure out what the previous developer intended
-- **Follow patterns** - Maintain consistency with existing code style
-- **Complete systematically** - Implement one function at a time
-- **Test incrementally** - Verify each piece works before moving on
-- **Use Claude Code extensively** - It's your primary development partner
+- **Initialize first** - Set up project memory and MCP servers for enhanced capabilities
+- **Review before coding** - Understand the existing architecture thoroughly
+- **Collaborate on implementation** - Let Claude Code guide the completion process
+- **Test systematically** - Verify each component works before moving forward
+- **Use MCP capabilities** - Leverage the configured servers for better development experience
 
 ## Key Learning Objectives
 
-1. **Code Archaeology** - Understanding and completing inherited codebases
-2. **Claude Code Partnership** - Using AI as your development companion
-3. **API Integration** - Working with external weather services
-4. **Production Deployment** - Getting code running on real AWS infrastructure
-5. **Problem Solving** - Figuring out requirements from incomplete implementations
-
-## Common Challenges
-
-**Challenge**: Understanding the existing architecture
-**Approach**: Ask Claude Code to explain Amazon Strands and AgentCore concepts
-
-**Challenge**: Implementing natural language parsing
-**Approach**: Use Claude Code to suggest regex patterns or simple parsing logic
-
-**Challenge**: API integration complexity
-**Approach**: Let Claude Code guide you through the OpenWeather API structure
-
-**Challenge**: Deployment configuration
-**Approach**: Use Claude Code to understand AgentCore toolkit usage
+1. **Claude Code Project Setup** - Using /init and MCP server configuration
+2. **Code Archaeology with AI** - Understanding inherited codebases with Claude Code
+3. **Collaborative Development** - Working with Claude Code to complete implementations
+4. **Strands Framework Mastery** - Understanding modern AWS agent development
+5. **Local Testing Strategies** - Setting up and using local AgentCore environments
 
 ## Time Management
 
-- **0-10 min**: Analyze inherited codebase with Claude Code
-- **10-20 min**: Understand requirements and plan implementation
-- **20-40 min**: Complete the three TODO functions
-- **40-50 min**: Test locally and debug issues
-- **50-60 min**: Deploy to production and verify
+- **0-5 min**: Initialize Claude Code project with /init
+- **5-15 min**: Configure MCP servers for enhanced capabilities
+- **15-25 min**: Code review and architecture analysis
+- **25-40 min**: Complete implementation with Claude Code
+- **40-50 min**: Set up local AgentCore testing environment
+- **50-60 min**: Test and validate completed agent
 
 ## Getting Help
 
-Use Claude Code as your development partner throughout:
+Use Claude Code as your primary development partner:
 
-- "Help me understand this inherited codebase and what needs to be completed"
-- "What is Amazon Strands and how does it work with AgentCore?"
-- "How should I implement the city extraction from user messages?"
-- "Guide me through integrating with the OpenWeather API"
-- "Help me format the weather response in a user-friendly way"
-- "How do I deploy this to AgentCore Runtime?"
+- "Help me configure the AgentCore and Strands MCP servers"
+- "Review this inherited codebase and explain what needs to be completed"
+- "Complete the missing weather and calculator tool implementations"
+- "Set up a local AgentCore environment for testing"
+- "Help me test the agent functionality locally"
 
 ## Important Notes
 
-- This is a **realistic development scenario** - you're completing real work
-- The previous developer's code **follows good patterns** - maintain consistency
-- **Claude Code is your pair programming partner** - use it extensively
-- **Test locally first** - don't deploy broken code to production
-- **Production deployment** uses real AWS infrastructure
+- This uses **real Claude Code features** with MCP server integration
+- **Project memory** persists through the CLAUDE.md file
+- **MCP servers** provide enhanced development capabilities
+- **Local testing** simulates the AgentCore Runtime environment
+- **Collaborative approach** leverages Claude Code's full potential
 
-Remember: You're stepping into a real developer's shoes - use Claude Code to help you understand, complete, and deploy professional-quality code! 🚀
+Remember: You're not just completing code - you're learning to work effectively with Claude Code as your development partner in realistic scenarios! 🚀
