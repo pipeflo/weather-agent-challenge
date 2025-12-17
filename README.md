@@ -23,8 +23,8 @@ You're a new developer who inherited an incomplete weather agent from a colleagu
 
 **Participants**:
 ```bash
-git clone https://github.com/pipeflo/weather-agent-scenario.git
-cd weather-agent-scenario/weather-agent
+git clone https://github.com/pipeflo/weather-agent-challenge.git
+cd weather-agent-challenge/weather-agent
 claude
 ```
 
